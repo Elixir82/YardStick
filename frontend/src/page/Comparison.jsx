@@ -22,7 +22,7 @@ function Comparison() {
 
     const fetchComparison = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/comparison", {
+        const res = await axios.get("https://yardstick-cslv.onrender.com/comparison", {
           params: { month },
         });
         setComparisonData(res.data.data);

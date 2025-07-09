@@ -15,7 +15,7 @@ function MonthlyBudget() {
 
     const fetchBudgets = async () => {
       try {
-        const resp = await axios.get(`http://localhost:8000/budgets`, {
+        const resp = await axios.get(`https://yardstick-cslv.onrender.com/budgets`, {
           params: { month: selectedMonth } // ✅ send month as query param
         });
         setBudgets(resp.data.data); // assuming backend returns { data: [...] }

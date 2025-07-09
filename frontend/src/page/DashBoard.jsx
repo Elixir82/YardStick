@@ -24,7 +24,7 @@ function Dashboard() {
 
     const fetchTransactions = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/transactions", {
+        const res = await axios.get("https://yardstick-cslv.onrender.com/transactions", {
           params: { month },
         });
 

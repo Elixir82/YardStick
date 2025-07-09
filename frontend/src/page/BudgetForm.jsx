@@ -38,7 +38,7 @@ function BudgetForm() {
     setLoading(true);
     setAlert({ type: "", message: "" });
     try {
-      await axios.post("http://localhost:8000/budgets", {
+      await axios.post("https://yardstick-cslv.onrender.com/budgets", {
         month,
         amount: Number(amount),
         category,
@@ -58,7 +58,7 @@ function BudgetForm() {
     setLoading(true);
     try {
       const resp = await axios.get(
-        `http://localhost:8000/budgets?month=${selectedMonth}`
+        `https://yardstick-cslv.onrender.com/budgets?month=${selectedMonth}`
       );
       setExistingBudgets(resp.data.data);
     } catch (err) {

@@ -20,7 +20,7 @@ function TransactionForm() {
     }
 
     try {
-      const res = await axios.post("http://localhost:8000/transactions", {
+      const res = await axios.post("https://yardstick-cslv.onrender.com/transactions", {
         amount: Number(amount),
         category,
         date,
