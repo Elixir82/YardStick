@@ -3,68 +3,48 @@ import axios from "axios";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@radix-ui/react-label";
-import { FiCalendar, FiTag, FiDollarSign, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import {
   Select,
-  SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@radix-ui/react-select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
-const categories = [
-  { label: "Food", icon: <FiTag /> },
-  { label: "Movies", icon: <FiTag /> },
-  { label: "Travel", icon: <FiTag /> },
-  { label: "Utilities", icon: <FiTag /> },
-  { label: "Rent", icon: <FiTag /> },
-  { label: "Shopping", icon: <FiTag /> },
-  { label: "Health", icon: <FiTag /> },
-  { label: "Other", icon: <FiTag /> },
-];
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+
+const categories = ["Food", "Movies", "Travel", "Utilities", "Rent", "Shopping", "Health", "Other"];
 
 function BudgetForm() {
   const [month, setMonth] = React.useState("");
-  const [amount, setAmount] = React.useState("");
   const [category, setCategory] = React.useState("");
+  const [amount, setAmount] = React.useState("");
   const [existingBudgets, setExistingBudgets] = React.useState([]);
-  const [loading, setLoading] = React.useState(false);
-  const [alert, setAlert] = React.useState({ type: "", message: "" });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!month || !amount || !category) return;
-    setLoading(true);
-    setAlert({ type: "", message: "" });
+  const fetchBudgets = async (month) => {
     try {
-      await axios.post("https://yardstick-cslv.onrender.com/budgets", {
-        month,
-        amount: Number(amount),
-        category,
-      });
-      setAmount("");
-      setCategory("");
-      setAlert({ type: "success", message: "Budget saved successfully!" });
-      fetchBudgets(month);
+      const res = await axios.get(`https://yardstick-cslv.onrender.com/budgets?month=${month}`);
+      setExistingBudgets(res.data.data || []);
     } catch (error) {
-      setAlert({ type: "error", message: "Unable to save budget." });
-    } finally {
-      setLoading(false);
+      console.error("Error fetching budgets:", error);
     }
   };
 
-  const fetchBudgets = async (selectedMonth) => {
-    setLoading(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!month || !category || !amount) return;
+
     try {
-      const resp = await axios.get(
-        `https://yardstick-cslv.onrender.com/budgets?month=${selectedMonth}`
-      );
-      setExistingBudgets(resp.data.data);
-    } catch (err) {
-      setAlert({ type: "error", message: "Error fetching budgets." });
-    } finally {
-      setLoading(false);
+      await axios.post("https://yardstick-cslv.onrender.com/budgets", {
+        month,
+        category,
+        amount: Number(amount),
+      });
+      setAmount("");
+      setCategory("");
+      fetchBudgets(month); // refresh list after submit
+    } catch (error) {
+      console.error("Error setting budget:", error);
     }
   };
 
@@ -73,99 +53,69 @@ function BudgetForm() {
   }, [month]);
 
   return (
-    <div className="max-w-md mx-auto p-6 space-y-8 bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-xl">
-      <Card className="shadow-xl transition-shadow hover:shadow-2xl">
-        <CardHeader className="pb-4 border-b border-gray-100">
-          <CardTitle className="text-2xl font-bold text-blue-800 flex items-center gap-2">
-            <FiDollarSign className="text-blue-500" /> Set a Budget
-          </CardTitle>
+    <div className="max-w-xl mx-auto p-4 space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Set Budget for a Category</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="month" className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                <FiCalendar /> Month (YYYY-MM)
-              </Label>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-1">
+              <Label htmlFor="month">Month</Label>
               <Input
-                id="month"
                 type="month"
+                id="month"
                 value={month}
                 onChange={(e) => setMonth(e.target.value)}
-                className="transition-all focus:ring-2 focus:ring-blue-400 focus:border-blue-400 rounded-lg"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="category" className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                <FiTag /> Category
-              </Label>
+            <div className="space-y-1">
+              <Label htmlFor="category">Category</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all">
-                  <SelectValue placeholder="Select a category" />
+                <SelectTrigger className="w-full border px-3 py-2 rounded">
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
-                <SelectContent className="bg-white shadow-lg rounded-lg border border-gray-200 mt-1">
+                <SelectContent>
                   {categories.map((cat) => (
-                    <SelectItem
-                      key={cat.label}
-                      value={cat.label}
-                      className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm flex items-center gap-2"
-                    >
-                      {cat.icon} {cat.label}
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="amount" className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                <FiDollarSign /> Amount (₹)
-              </Label>
+            <div className="space-y-1">
+              <Label htmlFor="amount">Amount (₹)</Label>
               <Input
                 id="amount"
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="transition-all focus:ring-2 focus:ring-blue-400 focus:border-blue-400 rounded-lg"
-                placeholder="0.00"
-                min="0"
               />
             </div>
 
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2 rounded-lg shadow-md transition-all"
-            >
-              {loading ? "Saving..." : "Save Budget"}
+            <Button type="submit" className="w-full">
+              Save Budget
             </Button>
           </form>
-          {alert.message && (
-            <div className={`mt-4 flex items-center gap-2 px-3 py-2 rounded-md ${alert.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
-              {alert.type === "success" ? <FiCheckCircle /> : <FiAlertCircle />}
-              <span>{alert.message}</span>
-            </div>
-          )}
         </CardContent>
       </Card>
 
       {existingBudgets.length > 0 && (
-        <Card className="shadow-xl transition-shadow hover:shadow-2xl">
-          <CardHeader className="pb-4 border-b border-gray-100">
-            <CardTitle className="text-2xl font-bold text-blue-800 flex items-center gap-2">
-              <FiCalendar className="text-blue-500" /> Budgets for {month}
-            </CardTitle>
+        <Card>
+          <CardHeader>
+            <CardTitle>Budgets Set for {month}</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {existingBudgets.map((b, i) => (
+          <CardContent className="space-y-2">
+            {existingBudgets.map((b, idx) => (
               <div
-                key={i}
-                className="flex justify-between items-center py-2 px-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-all"
+                key={idx}
+                className="flex justify-between text-sm text-muted-foreground"
               >
-                <span className="font-medium text-gray-700 flex items-center gap-2">
-                  <FiTag /> {b.category}
-                </span>
-                <span className="font-semibold text-blue-700">₹{b.amount.toLocaleString()}</span>
+                <span>{b.category}</span>
+                <span>₹{b.amount}</span>
               </div>
             ))}
           </CardContent>
