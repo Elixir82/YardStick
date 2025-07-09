@@ -1,10 +1,10 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 
-import BudgetForm from "./page/BudgetForm";
-import Comparison from "./page/Comparison";
-import Dashboard from "./page/Dashboard";
-import TransactionForm from "./page/TransactionForm";
+import BudgetForm from "./page/BudgetForm.jsx";
+import Comparison from "./page/Comparison.jsx";
+import Dashboard from "./page/DashBoard.jsx";
+import TransactionForm from "./page/TransactionForm.jsx";
 
 function App() {
   return (
